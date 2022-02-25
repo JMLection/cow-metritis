@@ -12,7 +12,10 @@ require(BiocManager)
 
 # install dada2
 BiocManager::install("dada2")
-no
+nno
+
+# load package
+require(dada2)
 
 # path to directory that contains fastq files
 # Github doesn't handle file storage well so these are on OneDrive
@@ -82,8 +85,13 @@ cleaned <- filterAndTrim(
   # add any necessary filtering parameters
   maxN = 0,
   
+  # set maxEE to 2
+  maxEE = 2,
+  minLen = 100,
+  
   # MAC ONLY: multithread ability
-  multithread = TRUE
+  multithread = TRUE,
+  verbose = TRUE
 )
 
 # path to filtered and cleaned reads
@@ -93,7 +101,7 @@ CLEANEDPATH = "./data/filtered/"
 # in reality: do this step in FastQC as well
 plotQualityProfile(CLEANEDPATH[1])
 
-
+# Stop and look at MultiQC Profile
 
 ## ---- dada2 algorithm----
 
@@ -127,6 +135,12 @@ errF <- learnErrors(forward,
                     multithread = TRUE)
 errR <- learnErrors(reverse, 
                     multithread = TRUE)
+
+# visualize error plots- with binned quality score, will look bad
+plotErrors(errF, nominalQ = TRUE)
+
+# visualize reverse plots
+plotErrors(errR, nominalQ = TRUE)
 
 # perform denoising on forward and reverse reads
 dadaForward <- dada(derep = forward, 
